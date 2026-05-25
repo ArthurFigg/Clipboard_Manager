@@ -133,18 +133,17 @@ Para conteúdo textual, detectar por regex na seguinte ordem de prioridade:
 
 ### Concluído
 
-- **Etapa 1 — Setup**: `pyproject.toml` + estrutura de pastas + venv via `uv`. Dependências: `customtkinter 5.2.2`, `pynput 1.8.2`, `pyperclip 1.11.0`, `pytest 9.0.3`.
+- **Etapa 1 — Setup**: `pyproject.toml` + estrutura de pastas + venv via `uv`. Dependências: `customtkinter 5.2.2`, `pynput 1.8.2`, `pyperclip 1.11.0`, `pytest 9.0.3`, `pillow 12.2.0`, `pystray 0.19.5`.
 - **Etapa 2 — Banco**: `db/connection.py` — cria `%LOCALAPPDATA%\ClipboardManager\data.db` e tabelas `history` e `snippets` na primeira execução. Conexão por operação (`obter_conexao()`) para segurança com threads.
-- **Etapa 3 — Categorizer**: `core/categorizer.py` — função pura `categorizar(conteudo) -> Categoria`. 28 testes passando em `tests/test_categorizer.py`. Nota: qualquer `;` isolado dispara `code` — heurística aceita pelo spec, pode ser refinada no futuro.
+- **Etapa 3 — Categorizer**: `core/categorizer.py` — função pura `categorizar(conteudo) -> Categoria`. 28 testes. Nota: qualquer `;` isolado dispara `code` — heurística aceita pelo spec.
+- **Etapa 4 — Repositórios**: `db/history_repo.py` + `db/snippet_repo.py`. CRUD completo, limite de 500 itens no histórico, filtros por categoria e busca. 31 testes. Fixture `conn_memoria` em `tests/conftest.py`.
+- **Etapa 5 — Daemon**: `core/daemon.py` — `_ler_clipboard()` com prioridade imagem→arquivo→texto via `PIL.ImageGrab`. Classe `Daemon` com thread daemon e deduplicação. 20 testes.
+- **Etapa 6 — Exporter**: `export/exporter.py` — `exportar_txt`, `exportar_json`, `exportar_md`, dispatcher `exportar()`. Funciona com `dict` e `sqlite3.Row`. 21 testes.
+- **Etapa 7 — UI**: `ui/app.py` + `ui/history_tab.py` + `ui/snippets_tab.py`. Polling de fila via `after()`, formulário modal de snippet, status de cópia. `preview.py` descartável disponível.
+- **Etapa 8 — Hotkey, tray e autostart**: `core/hotkey.py` (GerenciadorHotkey), `core/tray.py` (GerenciadorTray com ícone gerado por Pillow), `core/autostart.py` (winreg). 24 testes.
+- **Etapa 9 — Integração final**: `config.py` (config.json em %LOCALAPPDATA%), `main.py` completo conectando todos os módulos. Shutdown limpo via `app.after(0, ...)`. X fecha para o tray. 11 testes de config. **135 testes passando.**
 
-### Próximas etapas
-
-- **Etapa 4 — Repositórios**: `db/history_repo.py` + `db/snippet_repo.py` + testes dos dois. Mesma etapa por dependência idêntica (`connection.py`) e estrutura similar.
-- **Etapa 5 — Daemon**: `core/daemon.py` — thread de captura com `pyperclip`, detecção de imagem/arquivo antes do categorizer, salva via `history_repo`. Comunicação com UI via `queue.Queue`.
-- **Etapa 6 — Exporter**: `export/exporter.py` + testes. Função pura, sem dependências externas.
-- **Etapa 7 — UI**: `ui/app.py` + `ui/history_tab.py` + `ui/snippets_tab.py`. Oferecer `preview.py` descartável antes da integração final.
-- **Etapa 8 — Hotkey, tray e autostart**: `core/hotkey.py` + system tray + registro no Windows. Integração ao `main.py`.
-- **Etapa 9 — Integração final**: `main.py` completo, `config.json`, testes de integração, ajustes de UI.
+### Projeto concluído ✓
 
 ---
 
